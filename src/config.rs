@@ -1,6 +1,8 @@
-use std::fs;
-use std::io::{Error, ErrorKind};
-use std::path::Path;
+use std::{
+    fs,
+    io::{Error, ErrorKind},
+    path::Path,
+};
 
 use log::{error, info};
 use serde::{Deserialize, Serialize};
@@ -37,18 +39,12 @@ pub fn get_config() -> Result<Config, Error> {
             }
         }
     } else {
-        let default_config = Config {
-            steam_path: String::new(),
-            td_path: String::new(),
-            mods: vec![],
-        };
-
-        info!("Config didn't exist, returning a empty one: {default_config:?}");
-        Ok(default_config)
+        error!("Config file not found!");
+        Err(Error::new(ErrorKind::NotFound, "Config file not found"))
     }
 }
 
-pub fn save_config(cfg: Config) -> Result<(), Error> {
+pub fn save_config(cfg: &Config) -> Result<(), Error> {
     let config_file = Path::new("patcher.tdcfg");
 
     match bincode::serialize(&cfg) {

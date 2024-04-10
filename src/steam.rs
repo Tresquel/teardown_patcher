@@ -1,8 +1,9 @@
-use std::io::{Error, ErrorKind};
-use std::path::Path;
+use std::{
+    io::{Error, ErrorKind},
+    path::Path,
+};
 
-use winreg::enums::*;
-use winreg::RegKey;
+use winreg::{enums::*, RegKey};
 
 pub fn get_steam_path() -> Result<String, Error> {
     let hklm = RegKey::predef(HKEY_LOCAL_MACHINE);

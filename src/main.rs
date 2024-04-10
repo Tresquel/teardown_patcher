@@ -4,8 +4,7 @@ mod steam;
 mod teardown;
 
 use log::{error, info, LevelFilter};
-use std::env;
-use std::io::Error;
+use std::{env, fs, io::Error};
 
 fn help() {
     println!("very helpful help message")
@@ -15,11 +14,12 @@ fn main() -> Result<(), Error> {
     simple_logging::log_to_file("teardown_patcher.log", LevelFilter::Debug)?;
 
     let mut args: Vec<String> = env::args().collect();
+    info!("Ran with arguments: {:?}", args);
     args.remove(0); // remove first argument (the path)
 
     if args.is_empty() {
-        println!("Bad arguments(s)!");
-        error!("Bad argument(s): {:?}", args);
+        println!("No arguments provided!");
+        error!("No arguments provided!");
         help();
         return Ok(());
     }
@@ -37,6 +37,12 @@ fn main() -> Result<(), Error> {
                 info!("Patching the game...");
                 println!("Patching the game...");
                 patcher::patch()?;
+            }
+
+            "--reset" | "-r" => {
+                info!("Removing tdcfg file");
+                println!("Removing tdcfg file");
+                fs::remove_file("patcher.tdcfg")?;
             }
 
             _ => {
