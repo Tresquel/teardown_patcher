@@ -11,7 +11,9 @@ pub struct Mod {
     pub description: String,
     pub author: String,
     pub active: bool,
+    pub path: String,
 }
+
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Config {
     pub steam_path: String,
@@ -21,6 +23,7 @@ pub struct Config {
 
 pub fn get_config() -> Result<Config, Error> {
     let config_file = Path::new("patcher.tdcfg");
+
     if config_file.exists() {
         let open = fs::read(config_file)?;
         match bincode::deserialize(&open) {
@@ -47,6 +50,7 @@ pub fn get_config() -> Result<Config, Error> {
 
 pub fn save_config(cfg: Config) -> Result<(), Error> {
     let config_file = Path::new("patcher.tdcfg");
+
     match bincode::serialize(&cfg) {
         Ok(v) => {
             fs::write(config_file, v)?;

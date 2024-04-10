@@ -1,4 +1,5 @@
 mod config;
+mod patcher;
 mod steam;
 mod teardown;
 
@@ -12,10 +13,11 @@ fn help() {
 
 fn main() -> Result<(), Error> {
     simple_logging::log_to_file("teardown_patcher.log", LevelFilter::Debug)?;
+
     let mut args: Vec<String> = env::args().collect();
     args.remove(0); // remove first argument (the path)
 
-    if args.len() < 1 {
+    if args.is_empty() {
         println!("Bad arguments(s)!");
         error!("Bad argument(s): {:?}", args);
         help();
@@ -32,7 +34,9 @@ fn main() -> Result<(), Error> {
             }
 
             "--patch" | "-p" => {
-
+                info!("Patching the game...");
+                println!("Patching the game...");
+                patcher::patch()?;
             }
 
             _ => {

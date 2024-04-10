@@ -9,10 +9,10 @@ pub fn get_steam_path() -> Result<String, Error> {
     let steam32_key = hklm.open_subkey("SOFTWARE\\Valve\\Steam")?;
     let steam64_key = hklm.open_subkey("SOFTWARE\\Wow6432Node\\Valve\\Steam")?;
 
-    return match steam32_key.get_value("InstallPath") {
+    match steam32_key.get_value("InstallPath") {
         Ok(v) => Ok(v),
         Err(_) => Ok(steam64_key.get_value("InstallPath")?),
-    };
+    }
 }
 
 pub fn get_teardown_path() -> Result<String, Error> {

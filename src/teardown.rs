@@ -1,14 +1,19 @@
 use log::{debug, error, info};
 use rfd::FileDialog;
 
+use std::fs;
 use std::io::{Error, ErrorKind};
 use std::path::{Path, PathBuf};
+
+use crate::steam;
+
 
 pub fn ask_for_directory() -> Result<String, Error> {
     println!("We couldn't find Teardown in the Steam folder.\nPlease select the Teardown executable in the window that pops up. ");
     info!("Asking for Teardown's exe");
 
     let path = std::env::current_dir().unwrap();
+
     loop {
         let folder = FileDialog::new()
             .add_filter("teardown", &["exe"])
@@ -38,7 +43,16 @@ pub fn ask_for_directory() -> Result<String, Error> {
 }
 
 fn check_path(path: &PathBuf) -> Result<bool, Error> {
+    let lf_path = Path::new(&steam::get_steam_path()?).join("steamapps/libraryfolders.vdf");
+    let lf_contents = fs::read_to_string(lf_path)?;
+    
+    if !lf_contents.contains(r#""1167630""#) {
+        error!("lf doesn't contain id");
+        return Err(Error::new(ErrorKind::NotFound, "lf doesn't contain id"));
+    }
+    
     let td_path = Path::new(&path);
+
     if td_path.ends_with("steamapps/common/Teardown/teardown.exe") {
         Ok(true)
     } else {
