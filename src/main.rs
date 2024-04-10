@@ -4,13 +4,13 @@ mod steam;
 mod teardown;
 
 use log::{error, info, LevelFilter};
-use std::{env, fs, io::Error};
+use std::{env, fs};
 
 fn help() {
     println!("very helpful help message")
 }
 
-fn main() -> Result<(), Error> {
+fn main() -> Result<(), Box<dyn std::error::Error>> {
     simple_logging::log_to_file("teardown_patcher.log", LevelFilter::Debug)?;
 
     let mut args: Vec<String> = env::args().collect();
