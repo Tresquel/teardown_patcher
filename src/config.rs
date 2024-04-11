@@ -20,6 +20,7 @@ pub struct Config {
     pub steam_path: PathBuf,
     pub td_path: PathBuf,
     pub mods: Vec<Mod>,
+    pub patched_files: Vec<PathBuf>,
 }
 
 pub fn get_config() -> Result<Config, Error> {

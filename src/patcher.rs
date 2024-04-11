@@ -1,8 +1,9 @@
 use log::{debug, error, info, warn};
 use serde::Deserialize;
 use std::{
+    collections::HashSet,
     fs::{self, File},
-    io::{Error, ErrorKind, Read},
+    io::{self, Error, ErrorKind, Read},
     path::{Path, PathBuf},
 };
 use zip::ZipArchive;
@@ -21,10 +22,87 @@ struct Manifest {
 
 pub fn patch() -> Result<bool, Box<dyn std::error::Error>> {
     let mut config = init_config()?;
-    config.mods = list_mods()?;
 
-    backup(config.td_path.join("data\\ui\\splash.lua"))?;
-    restore(config.td_path.join("data\\ui\\splash.lua.bak"))?;
+    for entry in fs::read_dir(".\\mods")? {
+        let path = entry?.path();
+        info!("Found file {:?}", path);
+
+        if path.extension().unwrap() != "zip" {
+            continue;
+        }
+
+        let zip_file = File::open(&path)?;
+        let mut archive = ZipArchive::new(zip_file)?;
+
+        for i in 0..archive.len() {
+            let mut file = archive.by_index(i)?;
+            let file_name = file.enclosed_name().unwrap().to_owned();
+
+            // pre checks
+            if file.is_dir() {
+                continue;
+            }
+            if file_name.ends_with("manifest.toml") {
+                continue;
+            }
+
+            info!("Patching file: {:?}", &file_name);
+            print!("Patching file: {:?}...", &file_name);
+
+            // backup
+            if let Err(e) = backup(config.td_path.join(&file_name)) {
+                match e.kind() {
+                    ErrorKind::AlreadyExists => {}
+                    _ => {
+                        error!("Backup failed: {}", e);
+                        println!("Backup failed: {}", e);
+                        return Err(Box::new(e));
+                    }
+                }
+            }
+
+            // copying
+            let mut outfile = File::create(config.td_path.join(&file_name))?;
+            io::copy(&mut file, &mut outfile)?;
+
+            info!("Successfully patched file: {:?}", &file_name);
+            println!(" done");
+            config.patched_files.push(file_name);
+        }
+    }
+
+    config.patched_files = remove_duplicates(config.patched_files);
+    config::save_config(&config)?;
+
+    Ok(true)
+}
+
+pub fn unpatch() -> Result<bool, Box<dyn std::error::Error>> {
+    let mut config = init_config()?;
+    let patched = config.patched_files.clone();
+
+    for file in patched {
+        let mut restore_path = file.clone();
+
+        if let Some(ext) = restore_path.extension() {
+            let mut new_ext = ext.to_os_string();
+            new_ext.push(".bak");
+            restore_path.set_extension(new_ext);
+        }
+
+        info!("Restoring file: {:?}", &restore_path);
+        print!("Restoring file: {:?}...", &restore_path);
+
+        restore(config.td_path.join(restore_path.clone()))?;
+
+        info!("Successfully restored file: {:?}", &restore_path);
+        println!(" done");
+
+        config.patched_files.remove(0);
+    }
+
+    config.patched_files = remove_duplicates(config.patched_files);
+    config::save_config(&config)?;
 
     Ok(true)
 }
@@ -43,6 +121,7 @@ fn init_config() -> Result<Config, Error> {
         steam_path: steam::get_steam_path()?,
         td_path: PathBuf::new(),
         mods: vec![], // its gonna get refreshed anyway
+        patched_files: vec![],
     };
 
     match steam::get_teardown_path() {
@@ -57,7 +136,7 @@ fn init_config() -> Result<Config, Error> {
     Ok(config)
 }
 
-fn list_mods() -> Result<Vec<Mod>, Box<dyn std::error::Error>> {
+pub fn list_mods() -> Result<Vec<Mod>, Box<dyn std::error::Error>> {
     let mut mods: Vec<Mod> = Vec::new();
 
     let mods_path = Path::new(".\\mods");
@@ -68,7 +147,11 @@ fn list_mods() -> Result<Vec<Mod>, Box<dyn std::error::Error>> {
 
     for entry in fs::read_dir(".\\mods")? {
         let path = entry?.path();
-        info!("Found entry {:?}", path);
+        info!("Found file {:?}", path);
+
+        if path.extension().unwrap() != "zip" {
+            continue;
+        }
 
         let zip_file = File::open(&path)?;
         let mut archive = ZipArchive::new(zip_file)?;
@@ -108,8 +191,6 @@ fn backup(file: PathBuf) -> Result<(), Error> {
         backup_path.set_extension(new_ext);
     }
 
-    info!("Backing up file {:?}", file);
-
     if backup_path.exists() {
         error!("Backup failed. File {:?} already exists!", backup_path);
         return Err(Error::new(
@@ -118,8 +199,10 @@ fn backup(file: PathBuf) -> Result<(), Error> {
         ));
     }
 
+    info!("Backed up file {:?}", file);
     debug!("original path: {:?}", file);
     debug!("backup path: {:?}", backup_path);
+
     fs::rename(file, backup_path)?;
 
     Ok(())
@@ -141,11 +224,16 @@ fn restore(file: PathBuf) -> Result<(), Error> {
         }
     }
 
-    info!("Restoring file {:?}", file);
-
+    info!("Restored file {:?}", file);
     debug!("original path: {:?}", file);
     debug!("restore path: {:?}", restore_path);
+
     fs::rename(file, restore_path)?;
 
     Ok(())
+}
+
+fn remove_duplicates<T: std::hash::Hash + std::cmp::Eq + Clone>(vec: Vec<T>) -> Vec<T> {
+    let set: HashSet<_> = vec.into_iter().collect();
+    set.into_iter().collect()
 }

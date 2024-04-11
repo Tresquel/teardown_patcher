@@ -4,10 +4,24 @@ mod steam;
 mod teardown;
 
 use log::{error, info, LevelFilter};
-use std::{env, fs};
+use std::env;
+#[cfg(debug_assertions)]
+use std::fs;
 
 fn help() {
-    println!("very helpful help message")
+    println!(
+        "usage:
+--launch | -l
+    Launches the game thru Steam
+--patch | -p
+    Patches the game with the mods provided in the ./mods folder
+--restore | -r
+    Restores base game files
+--list | -L
+    Lists all mods and their info
+--help | -h
+    Displays this"
+    );
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -43,7 +57,32 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 }
             }
 
-            "--reset" | "-r" => {
+            "--restore" | "-r" => {
+                info!("Restoring the game...");
+                println!("Restoring the game...");
+                if let Err(e) = patcher::unpatch() {
+                    error!("Restoring has encountered an error! '{}'", e);
+                    println!("Restoring has encountered an error! '{}', stopping..", e);
+                    return Err(e);
+                }
+            }
+
+            "--list" | "-L" => {
+                let mods = patcher::list_mods()?;
+                for found_mod in mods {
+                    println!("{:?}:", found_mod.path);
+                    println!("  - Name: {}", found_mod.name);
+                    println!("  - Description: {}", found_mod.description);
+                    println!("  - Made by: {}", found_mod.author);
+                }
+            }
+
+            "--help" | "-h" => {
+                help();
+            }
+
+            #[cfg(debug_assertions)]
+            "--config-reset" | "-R" => {
                 info!("Removing tdcfg file");
                 println!("Removing tdcfg file");
                 fs::remove_file("patcher.tdcfg")?;
@@ -60,7 +99,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     if launch_game {
         info!("Launching game...");
         println!("Launching the game...");
-        //open::that_detached("steam://rungameid/1167630")?;
+        open::that_detached("steam://rungameid/1167630")?;
     }
 
     // let steam_path = steam::get_steam_path()?;
