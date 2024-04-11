@@ -3,7 +3,7 @@ use serde::Deserialize;
 use std::{
     fs::{self, File},
     io::{Error, Read},
-    path::Path,
+    path::{Path, PathBuf},
 };
 use zip::ZipArchive;
 
@@ -38,7 +38,7 @@ fn init_config() -> Result<Config, Error> {
 
     let mut config = Config {
         steam_path: steam::get_steam_path()?,
-        td_path: String::new(),
+        td_path: PathBuf::new(),
         mods: vec![], // its gonna get refreshed anyway
     };
 
@@ -86,7 +86,7 @@ fn list_mods() -> Result<Vec<Mod>, Box<dyn std::error::Error>> {
             name: manifest.name,
             description: manifest.description,
             author: manifest.author,
-            path: path.into_os_string().into_string().unwrap(),
+            path,
             active: false,
         };
 

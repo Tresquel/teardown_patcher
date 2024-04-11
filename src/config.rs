@@ -1,7 +1,7 @@
 use std::{
     fs,
     io::{Error, ErrorKind},
-    path::Path,
+    path::{Path, PathBuf},
 };
 
 use log::{error, info};
@@ -13,13 +13,13 @@ pub struct Mod {
     pub description: String,
     pub author: String,
     pub active: bool,
-    pub path: String,
+    pub path: PathBuf,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Config {
-    pub steam_path: String,
-    pub td_path: String,
+    pub steam_path: PathBuf,
+    pub td_path: PathBuf,
     pub mods: Vec<Mod>,
 }
 

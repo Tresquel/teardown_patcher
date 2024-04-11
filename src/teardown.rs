@@ -9,7 +9,7 @@ use std::{
 
 use crate::steam;
 
-pub fn ask_for_directory() -> Result<String, Error> {
+pub fn ask_for_directory() -> Result<PathBuf, Error> {
     println!("We couldn't find Teardown in the Steam folder.\nPlease select the Teardown executable in the window that pops up. ");
     info!("Asking for Teardown's exe");
 
@@ -25,10 +25,7 @@ pub fn ask_for_directory() -> Result<String, Error> {
         if let Some(td_path) = folder {
             debug!("User selected {:?}", td_path);
             if check_path(&td_path)? {
-                return Ok(td_path
-                    .into_os_string()
-                    .into_string()
-                    .expect("Couldn't convert into string"));
+                return Ok(td_path);
             } else {
                 error!("{:?} is a invalid executable", &td_path);
                 println!(
