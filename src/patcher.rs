@@ -120,7 +120,6 @@ fn init_config() -> Result<Config, Error> {
     let mut config = Config {
         steam_path: steam::get_steam_path()?,
         td_path: PathBuf::new(),
-        mods: vec![], // its gonna get refreshed anyway
         patched_files: vec![],
     };
 
