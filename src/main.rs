@@ -28,12 +28,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     simple_logging::log_to_file("teardown_patcher.log", LevelFilter::Debug)?;
 
     let mut args: Vec<String> = env::args().collect();
-    info!("Ran with arguments: {:?}", args);
+    info!("main(): Ran with arguments: {:?}", args);
     args.remove(0); // remove first argument (the path)
 
     if args.is_empty() {
         println!("No arguments provided!");
-        error!("No arguments provided!");
+        error!("main(): No arguments provided!");
         help();
         return Ok(());
     }
@@ -43,25 +43,21 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     for arg in args {
         match arg.as_str() {
             "--launch" | "-l" => {
-                info!("Launching the game after all the arguments are parsed...");
+                info!("main(): Launching the game after all the arguments are parsed...");
                 launch_game = true;
             }
 
             "--patch" | "-p" => {
-                info!("Patching the game...");
-                println!("Patching the game...");
                 if let Err(e) = patcher::patch() {
-                    error!("Patching has encountered an error! '{}'", e);
+                    error!("main(): Patching has encountered an error! '{}'", e);
                     println!("Patching has encountered an error! '{}', stopping..", e);
                     return Err(e);
                 }
             }
 
             "--restore" | "-r" => {
-                info!("Restoring the game...");
-                println!("Restoring the game...");
                 if let Err(e) = patcher::unpatch() {
-                    error!("Restoring has encountered an error! '{}'", e);
+                    error!("main(): Restoring has encountered an error! '{}'", e);
                     println!("Restoring has encountered an error! '{}', stopping..", e);
                     return Err(e);
                 }
@@ -83,13 +79,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
             #[cfg(debug_assertions)]
             "--config-reset" | "-R" => {
-                info!("Removing tdcfg file");
+                info!("main(): Removing tdcfg file");
                 println!("Removing tdcfg file");
                 fs::remove_file("patcher.tdcfg")?;
             }
 
             _ => {
-                error!("Unknown argument {arg}");
+                error!("main(): Unknown argument {arg}");
                 eprintln!("Unknown argument {arg}");
                 continue;
             }
@@ -97,7 +93,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     if launch_game {
-        info!("Launching game...");
+        info!("main(): Launching game...");
         println!("Launching the game...");
         open::that_detached("steam://rungameid/1167630")?;
     }
