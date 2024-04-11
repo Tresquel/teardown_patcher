@@ -1,8 +1,8 @@
-use log::{error, info, warn};
+use log::{debug, error, info, warn};
 use serde::Deserialize;
 use std::{
     fs::{self, File},
-    io::{Error, Read},
+    io::{Error, ErrorKind, Read},
     path::{Path, PathBuf},
 };
 use zip::ZipArchive;
@@ -22,6 +22,9 @@ struct Manifest {
 pub fn patch() -> Result<bool, Box<dyn std::error::Error>> {
     let mut config = init_config()?;
     config.mods = list_mods()?;
+
+    backup(config.td_path.join("data\\ui\\splash.lua"))?;
+    restore(config.td_path.join("data\\ui\\splash.lua.bak"))?;
 
     Ok(true)
 }
@@ -87,7 +90,6 @@ fn list_mods() -> Result<Vec<Mod>, Box<dyn std::error::Error>> {
             description: manifest.description,
             author: manifest.author,
             path,
-            active: false,
         };
 
         info!("Adding mod to the mods list: {:?}", found_mod);
@@ -95,4 +97,52 @@ fn list_mods() -> Result<Vec<Mod>, Box<dyn std::error::Error>> {
     }
 
     Ok(mods)
+}
+
+fn backup(file: PathBuf) -> Result<(), Error> {
+    let mut backup_path = file.clone();
+
+    if let Some(ext) = backup_path.extension() {
+        let mut new_ext = ext.to_os_string();
+        new_ext.push(".bak");
+        backup_path.set_extension(new_ext);
+    }
+
+    info!("Backing up file {:?}", file);
+
+    if backup_path.exists() {
+        error!("Backup failed. File {:?} already exists!", backup_path);
+        return Err(Error::new(
+            ErrorKind::AlreadyExists,
+            "The file is already backed up!",
+        ));
+    }
+
+    debug!("original path: {:?}", file);
+    debug!("backup path: {:?}", backup_path);
+    fs::rename(file, backup_path)?;
+
+    Ok(())
+}
+
+fn restore(file: PathBuf) -> Result<(), Error> {
+    let mut restore_path = file.clone();
+
+    if let Some(extension) = restore_path.extension() {
+        if extension == "bak" {
+            let stem = restore_path.file_stem().unwrap();
+            let parent = restore_path.parent().unwrap();
+            restore_path = parent.join(stem);
+        } else {
+            return Err(Error::new(ErrorKind::InvalidInput, "File doesn't contain a .bak extension!"));
+        }
+    }
+
+    info!("Restoring file {:?}", file);
+
+    debug!("original path: {:?}", file);
+    debug!("restore path: {:?}", restore_path);
+    fs::rename(file, restore_path)?;
+
+    Ok(())
 }

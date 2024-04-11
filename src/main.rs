@@ -36,7 +36,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             "--patch" | "-p" => {
                 info!("Patching the game...");
                 println!("Patching the game...");
-                patcher::patch()?;
+                if let Err(e) = patcher::patch() {
+                    error!("Patching has encountered an error! '{}'", e);
+                    println!("Patching has encountered an error! '{}', stopping..", e);
+                    return Err(e);
+                }
             }
 
             "--reset" | "-r" => {

@@ -12,7 +12,6 @@ pub struct Mod {
     pub name: String,
     pub description: String,
     pub author: String,
-    pub active: bool,
     pub path: PathBuf,
 }
 
