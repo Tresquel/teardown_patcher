@@ -134,7 +134,10 @@ fn restore(file: PathBuf) -> Result<(), Error> {
             let parent = restore_path.parent().unwrap();
             restore_path = parent.join(stem);
         } else {
-            return Err(Error::new(ErrorKind::InvalidInput, "File doesn't contain a .bak extension!"));
+            return Err(Error::new(
+                ErrorKind::InvalidInput,
+                "File doesn't contain a .bak extension!",
+            ));
         }
     }
 
