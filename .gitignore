@@ -1,4 +1,5 @@
 /target
 /patcher.tdcfg
 /teardown_patcher.log
-/mods
+/mods/*
+!/mods/splash_skip.zip
