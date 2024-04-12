@@ -24,6 +24,12 @@ pub fn patch() -> Result<bool, Box<dyn std::error::Error>> {
     info!("patch(): Patching the game...");
     println!("Patching the game...");
 
+    let mods_path = Path::new(".\\mods");
+    if !mods_path.try_exists()? {
+        warn!("list_mods(): Mods path doesn't exist, creating");
+        fs::create_dir(mods_path)?;
+    }
+
     for entry in fs::read_dir(".\\mods")? {
         let path = entry?.path();
         info!("patch(): Found path {:?}", path);
