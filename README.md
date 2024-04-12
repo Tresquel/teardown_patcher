@@ -15,7 +15,9 @@ It takes all the files inside a zip file and copies them into the Teardown folde
     - Lists all mods and their info
 - `--help | -h`
     - Displays the help page
-
+- `--version | -v`
+    - Displays the version currently running
+  
 # How do I make my mod work with this?
 You need a `manifest.toml` file inside of the zip file that looks like this:
 ```toml

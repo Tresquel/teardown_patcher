@@ -128,7 +128,7 @@ pub fn list_mods() -> Result<Vec<Mod>, Box<dyn std::error::Error>> {
         let path = entry?.path();
         info!("list_mods(): Found file {:?}", path);
 
-        if path.extension().unwrap() != "zip" {
+        if path.extension().unwrap_or(OsStr::new("")) != "zip" || path.is_dir() {
             warn!("list_mods(): {:?} isn't a zip file", path);
             continue;
         }

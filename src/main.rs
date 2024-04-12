@@ -27,6 +27,8 @@ fn help() {
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     simple_logging::log_to_file("teardown_patcher.log", LevelFilter::Debug)?;
 
+    info!("teardown_patcher version: '{}'", env!("CARGO_PKG_VERSION"));
+
     let mut args: Vec<String> = env::args().collect();
     info!("main(): Ran with arguments: {:?}", args);
     args.remove(0); // remove first argument (the path)
@@ -73,6 +75,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 }
             }
 
+            "--version" | "-v" => {
+                println!("Teardown Patcher version '{}'", env!("CARGO_PKG_VERSION"));
+            }
+
             "--help" | "-h" => {
                 help();
             }
@@ -97,40 +103,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         println!("Launching the game...");
         open::that_detached("steam://rungameid/1167630")?;
     }
-
-    // let steam_path = steam::get_steam_path()?;
-    // info!("Steam's path is: {steam_path}");
-    //
-    // println!("Steam's path is: {steam_path}");
-    //
-    // #[allow(unused_assignments)]
-    // let mut td_path = String::new();
-    // match steam::get_teardown_path() {
-    //     Ok(v) => {
-    //         td_path = v;
-    //     }
-    //     Err(_) => {
-    //         td_path = teardown::ask_for_directory()?;
-    //     }
-    // }
-    // info!("Teardown's path is: {td_path}");
-    // println!("Teardown's path is: {td_path}\n\n");
-    //
-    // let mut cfg = config::get_config()?;
-    //
-    // if cfg.td_path == "" {
-    //     println!("Config was empty, setting the correct values");
-    //     cfg.steam_path = steam_path;
-    //     cfg.td_path = td_path;
-    //     config::save_config(cfg)?;
-    //     println!("Config saved");
-    // } else {
-    //     println!("Reading from config:");
-    //     println!(
-    //         "Steam's path is: {}\nTeardown's path is: {}",
-    //         cfg.steam_path, cfg.td_path
-    //     );
-    // }
 
     Ok(())
 }
