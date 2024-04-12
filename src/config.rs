@@ -52,18 +52,16 @@ pub fn save_config(cfg: &Config) -> Result<(), Error> {
     let config_file = Path::new("patcher.tdcfg");
 
     match bincode::serialize(&cfg) {
-        Ok(v) => {
-            match fs::write(config_file, v) {
-                Ok(_) => {
-                    info!("save_config(): Successfully written to config: {cfg:?}");
-                    Ok(())
-                }
-                Err(e) => {
-                    error!("save_config(): Error occured while writing config: {}", e);
-                    Err(e)
-                }
+        Ok(v) => match fs::write(config_file, v) {
+            Ok(_) => {
+                info!("save_config(): Successfully written to config: {cfg:?}");
+                Ok(())
             }
-        }
+            Err(e) => {
+                error!("save_config(): Error occured while writing config: {}", e);
+                Err(e)
+            }
+        },
         Err(e) => {
             error!("save_config(): Error while serializing config: {e:?}");
             Err(Error::new(

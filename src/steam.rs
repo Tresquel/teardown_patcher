@@ -16,18 +16,18 @@ pub fn get_steam_path() -> Result<PathBuf, Error> {
                 warn!("get_steam_path(): x86 doesn't have a value");
                 return Ok(PathBuf::from(v));
             };
-        },
+        }
         Err(e) => {
             warn!("get_steam_path(): x86 key error: {}", e);
         }
     };
 
-    match hklm.open_subkey("SOFTWARE\\Wow6432Node\\Valve\\Steam"){
+    match hklm.open_subkey("SOFTWARE\\Wow6432Node\\Valve\\Steam") {
         Ok(v) => {
             info!("get_steam_path(): Found x64 key");
             let value: String = v.get_value("InstallPath")?;
             Ok(PathBuf::from(value))
-        },
+        }
         Err(e) => {
             error!("get_steam_path(): x64 key error: {}", e);
             Err(e)

@@ -29,7 +29,10 @@ pub fn ask_for_directory() -> Result<PathBuf, Error> {
                 td_path.pop();
                 return Ok(td_path);
             } else {
-                error!("ask_for_directory(): {:?} is not a valid executable", &td_path);
+                error!(
+                    "ask_for_directory(): {:?} is not a valid executable",
+                    &td_path
+                );
                 println!(
                     "{:?} is not a valid Teardown executable. Please select the correct one.",
                     &td_path

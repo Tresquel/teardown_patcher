@@ -2,6 +2,7 @@ use log::{debug, error, info, warn};
 use serde::Deserialize;
 use std::{
     collections::HashSet,
+    ffi::OsStr,
     fs::{self, File},
     io::{self, Error, ErrorKind, Read},
     path::{Path, PathBuf},
@@ -25,9 +26,9 @@ pub fn patch() -> Result<bool, Box<dyn std::error::Error>> {
 
     for entry in fs::read_dir(".\\mods")? {
         let path = entry?.path();
-        info!("patch(): Found file {:?}", path);
+        info!("patch(): Found path {:?}", path);
 
-        if path.extension().unwrap() != "zip" {
+        if path.extension().unwrap_or(OsStr::new("")) != "zip" || path.is_dir() {
             warn!("patch(): {:?} isn't a zip file", path);
             continue;
         }
@@ -141,7 +142,10 @@ pub fn list_mods() -> Result<Vec<Mod>, Box<dyn std::error::Error>> {
         match archive.by_name("manifest.toml") {
             Ok(mut v) => v.read_to_string(&mut manifest_file)?,
             Err(_) => {
-                error!("list_mods(): manifest.toml not found in archive {:?}", &path);
+                error!(
+                    "list_mods(): manifest.toml not found in archive {:?}",
+                    &path
+                );
                 continue;
             }
         };
@@ -173,7 +177,10 @@ fn backup(file: PathBuf) -> Result<(), Error> {
     }
 
     if backup_path.exists() {
-        error!("backup(): Backup failed. File {:?} already exists!", backup_path);
+        error!(
+            "backup(): Backup failed. File {:?} already exists!",
+            backup_path
+        );
         return Err(Error::new(
             ErrorKind::AlreadyExists,
             "The file is already backed up!",
