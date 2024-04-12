@@ -34,3 +34,7 @@ my_mod:
     - manifest.toml
 ```
 I also included a [sample mod](/mods/splash_skip.zip) if you need it
+
+# Contributing
+All contributions are welcome, if you found a bug or if you would like to see a certain feature added, just make a issue about it.
+Or maybe if you want to make the code better or add a new feature, make a pull request. Make an issue before making your changes tho.
