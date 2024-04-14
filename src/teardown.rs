@@ -28,16 +28,16 @@ pub fn ask_for_directory() -> Result<PathBuf, Error> {
                 debug!("ask_for_directory(): Path is OK");
                 td_path.pop();
                 return Ok(td_path);
-            } else {
-                error!(
-                    "ask_for_directory(): {:?} is not a valid executable",
-                    &td_path
-                );
-                println!(
-                    "{:?} is not a valid Teardown executable. Please select the correct one.",
-                    &td_path
-                );
             }
+
+            error!(
+                "ask_for_directory(): {:?} is not a valid executable",
+                &td_path
+            );
+            println!(
+                "{:?} is not a valid Teardown executable. Please select the correct one.",
+                &td_path
+            );
         } else {
             error!("ask_for_directory(): User didn't select a file");
             return Err(Error::new(ErrorKind::NotFound, "User didn't select a file"));
@@ -50,7 +50,7 @@ fn check_path(path: &PathBuf) -> Result<bool, Error> {
     let lf_contents = fs::read_to_string(lf_path)?;
 
     // Steam only includes the path to the library on Wine/Proton
-    if !lf_contents.contains(r#""1167630""#) && !steam::check_wine()? {
+    if !lf_contents.contains(r#""1167630""#) && !steam::check_wine() {
         error!("check_path(): lf doesn't contain id");
         return Err(Error::new(ErrorKind::NotFound, "lf doesn't contain id"));
     }

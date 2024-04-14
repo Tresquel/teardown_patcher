@@ -53,7 +53,7 @@ pub fn save_config(cfg: &Config) -> Result<(), Error> {
 
     match bincode::serialize(&cfg) {
         Ok(v) => match fs::write(config_file, v) {
-            Ok(_) => {
+            Ok(()) => {
                 info!("save_config(): Successfully written to config: {cfg:?}");
                 Ok(())
             }
@@ -79,7 +79,7 @@ pub fn init_config() -> Result<Config, Error> {
             return Ok(v);
         }
         Err(_) => {
-            warn!("init_config(): Config file doesn't exist, intializing a new one..")
+            warn!("init_config(): Config file doesn't exist, intializing a new one..");
         }
     }
 
@@ -89,12 +89,11 @@ pub fn init_config() -> Result<Config, Error> {
         patched_files: vec![],
     };
 
-    match steam::get_teardown_path() {
-        Ok(v) => config.td_path = v,
-        Err(_) => {
-            info!("init_config(): Not found, asking user..");
-            config.td_path = teardown::ask_for_directory()?;
-        }
+    if let Ok(v) = steam::get_teardown_path() {
+        config.td_path = v;
+    } else {
+        info!("init_config(): Not found, asking user..");
+        config.td_path = teardown::ask_for_directory()?;
     }
     config.td_path = teardown::ask_for_directory()?;
     info!("init_config(): Saving config");

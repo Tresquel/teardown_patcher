@@ -4,7 +4,10 @@ use std::{
 };
 
 use log::{error, info, warn};
-use winreg::{enums::*, RegKey};
+use winreg::{
+    enums::{HKEY_CURRENT_USER, HKEY_LOCAL_MACHINE},
+    RegKey,
+};
 
 pub fn get_steam_path() -> Result<PathBuf, Error> {
     let hklm = RegKey::predef(HKEY_LOCAL_MACHINE);
@@ -48,17 +51,17 @@ pub fn get_teardown_path() -> Result<PathBuf, Error> {
     Err(Error::new(ErrorKind::NotFound, "folder doesn't exist"))
 }
 
-pub fn check_wine() -> Result<bool, Error> {
+pub fn check_wine() -> bool {
     let hklm = RegKey::predef(HKEY_CURRENT_USER);
 
     match hklm.open_subkey("SOFTWARE\\Wine") {
         Ok(_) => {
             info!("get_steam_path(): Running on Wine");
-            Ok(true)
+            true
         }
         Err(e) => {
             warn!("check_wine(): Wine key error: {}", e);
-            Ok(false)
+            false
         }
     }
 }

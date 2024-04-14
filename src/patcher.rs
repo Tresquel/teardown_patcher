@@ -60,13 +60,11 @@ pub fn patch() -> Result<bool, Box<dyn std::error::Error>> {
 
             // backup
             if let Err(e) = backup(config.td_path.join(&file_name)) {
-                match e.kind() {
-                    ErrorKind::AlreadyExists => {}
-                    _ => {
-                        error!("patch(): Backup failed: {}", e);
-                        println!("Backup failed: {}", e);
-                        return Err(Box::new(e));
-                    }
+                if e.kind() == ErrorKind::AlreadyExists {
+                } else {
+                    error!("patch(): Backup failed: {}", e);
+                    println!("Backup failed: {}", e);
+                    return Err(Box::new(e));
                 }
             }
 
@@ -145,15 +143,14 @@ pub fn list_mods() -> Result<Vec<Mod>, Box<dyn std::error::Error>> {
         // read file
         debug!("list_mods(): Reading the manifest.toml");
         let mut manifest_file = String::new();
-        match archive.by_name("manifest.toml") {
-            Ok(mut v) => v.read_to_string(&mut manifest_file)?,
-            Err(_) => {
-                error!(
-                    "list_mods(): manifest.toml not found in archive {:?}",
-                    &path
-                );
-                continue;
-            }
+        if let Ok(mut v) = archive.by_name("manifest.toml") {
+            v.read_to_string(&mut manifest_file)?
+        } else {
+            error!(
+                "list_mods(): manifest.toml not found in archive {:?}",
+                &path
+            );
+            continue;
         };
 
         debug!("list_mods(): Deserializing the .toml");
