@@ -45,7 +45,7 @@ pub fn patch() -> Result<bool, Box<dyn std::error::Error>> {
 
         for i in 0..archive.len() {
             let mut file = archive.by_index(i)?;
-            let file_name = file.enclosed_name().unwrap().to_owned();
+            let file_name = file.enclosed_name().unwrap().clone();
 
             // pre checks
             if file.is_dir() {

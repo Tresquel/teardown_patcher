@@ -20,7 +20,9 @@ fn help() {
 --list | -L
     Lists all mods and their info
 --help | -h
-    Displays this"
+    Displays this
+--version | -v
+    Prints out the current version installed"
     );
 }
 
