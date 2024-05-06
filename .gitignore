@@ -3,3 +3,4 @@
 /teardown_patcher.log
 /mods/*
 !/mods/splash_skip.zip
+/.vscode

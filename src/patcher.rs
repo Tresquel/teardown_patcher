@@ -60,7 +60,7 @@ pub fn patch() -> Result<bool, Box<dyn std::error::Error>> {
 
             // backup
             if let Err(e) = backup(config.td_path.join(&file_name)) {
-                if e.kind() == ErrorKind::AlreadyExists {
+                if e.kind() == ErrorKind::NotFound || e.kind() == ErrorKind::AlreadyExists {
                 } else {
                     error!("patch(): Backup failed: {}", e);
                     println!("Backup failed: {}", e);
