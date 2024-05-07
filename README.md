@@ -24,6 +24,7 @@ You need a `manifest.toml` file inside of the zip file that looks like this:
 name = "Name of the mod"
 description = "The description"
 author = "Author(s)"
+ignore = ["README.md", "data/ignore.this"] # optional
 ```
 Your zip file should also imitate Teardown's folder structure, so for example if you're making a mod that replaces the `splash.lua` file in the `/data/ui` folder, your zip file should look like this:
 ```
@@ -36,5 +37,4 @@ my_mod:
 I also included a [sample mod](/mods/splash_skip.zip) if you need it
 
 # Contributing
-All contributions are welcome, if you found a bug or if you would like to see a certain feature added, just make a issue about it.
-Or maybe if you want to make the code better or add a new feature, make a pull request. Make an issue before making your changes tho.
+All contributions are welcome, just make an issue before making your changes.

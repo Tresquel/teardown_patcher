@@ -95,7 +95,7 @@ pub fn init_config() -> Result<Config, Error> {
         info!("init_config(): Not found, asking user..");
         config.td_path = teardown::ask_for_directory()?;
     }
-    
+
     info!("init_config(): Saving config");
     save_config(&config)?;
 

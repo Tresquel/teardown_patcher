@@ -1263,7 +1263,7 @@ dependencies = [
 
 [[package]]
 name = "teardown_patcher"
-version = "1.0.2"
+version = "1.0.3"
 dependencies = [
  "bincode",
  "log",

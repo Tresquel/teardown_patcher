@@ -16,6 +16,7 @@ struct Manifest {
     name: String,
     description: String,
     author: String,
+    ignore: Option<Vec<PathBuf>>,
 }
 
 pub fn patch() -> Result<bool, Box<dyn std::error::Error>> {
@@ -43,6 +44,23 @@ pub fn patch() -> Result<bool, Box<dyn std::error::Error>> {
         let zip_file = File::open(&path)?;
         let mut archive = ZipArchive::new(zip_file)?;
 
+        // read file
+        debug!("patch(): Reading the manifest.toml");
+        let mut manifest_file = String::new();
+        if let Ok(mut v) = archive.by_name("manifest.toml") {
+            v.read_to_string(&mut manifest_file)?
+        } else {
+            error!("patch(): manifest.toml not found in archive {:?}", &path);
+            continue;
+        };
+
+        debug!("patch(): Deserializing the .toml");
+        let manifest: Manifest = toml::from_str(&manifest_file)?;
+        let to_ignore = manifest.ignore.unwrap_or(vec![PathBuf::new()]);
+
+        debug!("patch(): Current mod: '{}'", manifest.name);
+        println!("Current mod: '{}'", manifest.name);
+
         for i in 0..archive.len() {
             let mut file = archive.by_index(i)?;
             let file_name = file.enclosed_name().unwrap().clone();
@@ -52,6 +70,11 @@ pub fn patch() -> Result<bool, Box<dyn std::error::Error>> {
                 continue;
             }
             if file_name.ends_with("manifest.toml") {
+                continue;
+            }
+
+            if to_ignore.contains(&file_name) {
+                info!("patch(): Ignoring {:?}", &file_name);
                 continue;
             }
 
@@ -70,7 +93,12 @@ pub fn patch() -> Result<bool, Box<dyn std::error::Error>> {
 
             // copying
             info!("patch(): Copying file");
-            let mut outfile = File::create(config.td_path.join(&file_name))?;
+
+            let out_path = config.td_path.join(&file_name);
+
+            fs::create_dir_all(out_path.parent().unwrap())?;
+
+            let mut outfile = File::create(out_path)?;
             io::copy(&mut file, &mut outfile)?;
 
             info!("patch(): Successfully patched file: {:?}", &file_name);
