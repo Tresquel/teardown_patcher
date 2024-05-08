@@ -27,7 +27,7 @@ pub fn patch() -> Result<bool, Box<dyn std::error::Error>> {
 
     let mods_path = Path::new(".\\mods");
     if !mods_path.try_exists()? {
-        warn!("list_mods(): Mods path doesn't exist, creating");
+        warn!("patch(): Mods path doesn't exist, creating");
         fs::create_dir(mods_path)?;
     }
 
