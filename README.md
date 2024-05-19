@@ -1,10 +1,12 @@
 # Teardown patcher
 Makes modifying game files easy
 
+![screenshot](/screenshot.png)
+
 # How does it work?
 It takes all the files inside a zip file and copies them into the Teardown folder while also keeping a backup of the original files.
 
-# Usage
+# Console arguments
 - `--launch | -l`
     - Launches the game thru Steam
 - `--patch | -p`
