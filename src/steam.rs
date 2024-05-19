@@ -56,7 +56,7 @@ pub fn check_wine() -> bool {
 
     match hklm.open_subkey("SOFTWARE\\Wine") {
         Ok(_) => {
-            info!("get_steam_path(): Running on Wine");
+            info!("check_wine(): Running on Wine");
             true
         }
         Err(e) => {

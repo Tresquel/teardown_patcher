@@ -24,18 +24,18 @@ pub struct Config {
     pub patched_files: Vec<PathBuf>,
 }
 
-pub fn get_config() -> Result<Config, Error> {
+pub fn get() -> Result<Config, Error> {
     let config_file = Path::new("patcher.tdcfg");
-    info!("get_config(): checking if config exists");
+    info!("get(): checking if config exists");
 
     if config_file.exists() {
-        info!("get_config(): config exists, opening and deserializing...");
+        info!("get(): config exists, opening and deserializing...");
         let open = fs::read(config_file)?;
 
         match bincode::deserialize(&open) {
             Ok(c) => Ok(c),
             Err(e) => {
-                error!("get_config(): Error while deserializing config file: {e:?}");
+                error!("get(): Error while deserializing config file: {e:?}");
                 Err(Error::new(
                     ErrorKind::InvalidData,
                     "Couldn't deserialize config",
@@ -43,27 +43,27 @@ pub fn get_config() -> Result<Config, Error> {
             }
         }
     } else {
-        error!("get_config(): Config file not found!");
+        error!("get(): Config file not found!");
         Err(Error::new(ErrorKind::NotFound, "Config file not found"))
     }
 }
 
-pub fn save_config(cfg: &Config) -> Result<(), Error> {
+pub fn save(cfg: &Config) -> Result<(), Error> {
     let config_file = Path::new("patcher.tdcfg");
 
     match bincode::serialize(&cfg) {
         Ok(v) => match fs::write(config_file, v) {
             Ok(()) => {
-                info!("save_config(): Successfully written to config: {cfg:?}");
+                info!("save(): Successfully written to config: {cfg:?}");
                 Ok(())
             }
             Err(e) => {
-                error!("save_config(): Error occured while writing config: {}", e);
+                error!("save(): Error occured while writing config: {}", e);
                 Err(e)
             }
         },
         Err(e) => {
-            error!("save_config(): Error while serializing config: {e:?}");
+            error!("save(): Error while serializing config: {e:?}");
             Err(Error::new(
                 ErrorKind::InvalidData,
                 "Couldn't serialize config",
@@ -72,14 +72,14 @@ pub fn save_config(cfg: &Config) -> Result<(), Error> {
     }
 }
 
-pub fn init_config() -> Result<Config, Error> {
-    match get_config() {
+pub fn init() -> Result<Config, Error> {
+    match get() {
         Ok(v) => {
-            debug!("init_config(): Config file exists");
+            debug!("init(): Config file exists");
             return Ok(v);
         }
         Err(_) => {
-            warn!("init_config(): Config file doesn't exist, intializing a new one..");
+            warn!("init(): Config file doesn't exist, intializing a new one..");
         }
     }
 
@@ -92,12 +92,12 @@ pub fn init_config() -> Result<Config, Error> {
     if let Ok(v) = steam::get_teardown_path() {
         config.td_path = v;
     } else {
-        info!("init_config(): Not found, asking user..");
+        info!("init(): Not found, asking user..");
         config.td_path = teardown::ask_for_directory()?;
     }
 
-    info!("init_config(): Saving config");
-    save_config(&config)?;
+    info!("init(): Saving config");
+    save(&config)?;
 
     Ok(config)
 }

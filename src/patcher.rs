@@ -20,7 +20,7 @@ struct Manifest {
 }
 
 pub fn patch() -> Result<bool, Box<dyn std::error::Error>> {
-    let mut config = config::init_config()?;
+    let mut config = config::init()?;
 
     info!("patch(): Patching the game...");
     println!("Patching the game...");
@@ -86,7 +86,7 @@ pub fn patch() -> Result<bool, Box<dyn std::error::Error>> {
                 if e.kind() == ErrorKind::NotFound || e.kind() == ErrorKind::AlreadyExists {
                 } else {
                     error!("patch(): Backup failed: {}", e);
-                    println!("Backup failed: {}", e);
+                    eprintln!("Backup failed: {}", e);
                     return Err(Box::new(e));
                 }
             }
@@ -109,13 +109,13 @@ pub fn patch() -> Result<bool, Box<dyn std::error::Error>> {
     }
 
     config.patched_files = remove_duplicates(config.patched_files);
-    config::save_config(&config)?;
+    config::save(&config)?;
 
     Ok(true)
 }
 
 pub fn unpatch() -> Result<bool, Box<dyn std::error::Error>> {
-    let mut config = config::init_config()?;
+    let mut config = config::init()?;
     let patched = config.patched_files.clone();
 
     info!("unpatch(): Restoring the game...");
@@ -142,7 +142,7 @@ pub fn unpatch() -> Result<bool, Box<dyn std::error::Error>> {
     }
 
     config.patched_files = remove_duplicates(config.patched_files);
-    config::save_config(&config)?;
+    config::save(&config)?;
 
     Ok(true)
 }
@@ -158,7 +158,6 @@ pub fn list_mods() -> Result<Vec<Mod>, Box<dyn std::error::Error>> {
 
     for entry in fs::read_dir(".\\mods")? {
         let path = entry?.path();
-        info!("list_mods(): Found file {:?}", path);
 
         if path.extension().unwrap_or(OsStr::new("")) != "zip" || path.is_dir() {
             warn!("list_mods(): {:?} isn't a zip file", path);
@@ -169,7 +168,6 @@ pub fn list_mods() -> Result<Vec<Mod>, Box<dyn std::error::Error>> {
         let mut archive = ZipArchive::new(zip_file)?;
 
         // read file
-        debug!("list_mods(): Reading the manifest.toml");
         let mut manifest_file = String::new();
         if let Ok(mut v) = archive.by_name("manifest.toml") {
             v.read_to_string(&mut manifest_file)?
@@ -181,7 +179,6 @@ pub fn list_mods() -> Result<Vec<Mod>, Box<dyn std::error::Error>> {
             continue;
         };
 
-        debug!("list_mods(): Deserializing the .toml");
         // deserialize it and add it to the list
         let manifest: Manifest = toml::from_str(&manifest_file)?;
         let found_mod = Mod {
@@ -191,7 +188,6 @@ pub fn list_mods() -> Result<Vec<Mod>, Box<dyn std::error::Error>> {
             path,
         };
 
-        info!("list_mods(): Adding mod to the mods list: {:?}", found_mod);
         mods.push(found_mod);
     }
 

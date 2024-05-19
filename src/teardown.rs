@@ -34,7 +34,7 @@ pub fn ask_for_directory() -> Result<PathBuf, Error> {
                 "ask_for_directory(): {:?} is not a valid executable",
                 &td_path
             );
-            println!(
+            eprintln!(
                 "{:?} is not a valid Teardown executable. Please select the correct one.",
                 &td_path
             );
@@ -64,4 +64,13 @@ fn check_path(path: &PathBuf) -> Result<bool, Error> {
         warn!("check_path(): Path is not OK");
         Ok(false)
     }
+}
+
+pub fn launch() -> Result<(), std::io::Error> {
+    info!("launch_game(): Launching game...");
+    println!("Launching the game...");
+
+    open::that_detached("steam://rungameid/1167630")?;
+
+    Ok(())
 }
