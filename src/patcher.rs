@@ -130,6 +130,12 @@ pub fn unpatch() -> Result<bool, Box<dyn std::error::Error>> {
             restore_path.set_extension(new_ext);
         }
 
+        if !config.td_path.join(restore_path.clone()).exists() {
+            warn!("unpatch(): Couldn't restore {:?} because it doesn't exist!", config.td_path.join(restore_path.clone()));
+            config.patched_files.remove(0);
+            continue;
+        }
+
         info!("unpatch(): Restoring file: {:?}", &restore_path);
         print!("Restoring file: {:?}...", &restore_path);
 
