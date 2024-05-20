@@ -47,13 +47,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     for arg in args {
         match arg.as_str() {
             "--launch" | "-l" => {
-                info!("parse_args(): Launching the game after all the arguments are parsed...");
+                info!("main(): Launching the game after all the arguments are parsed...");
                 launch_game = true;
             }
 
             "--patch" | "-p" => {
                 if let Err(e) = patcher::patch() {
-                    error!("parse_args(): Patching has encountered an error! '{}'", e);
+                    error!("main(): Patching has encountered an error! '{}'", e);
                     eprintln!("Patching has encountered an error! '{}', stopping..", e);
                     return Err(e);
                 }
@@ -61,7 +61,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
             "--restore" | "-r" => {
                 if let Err(e) = patcher::unpatch() {
-                    error!("parse_args(): Restoring has encountered an error! '{}'", e);
+                    error!("main(): Restoring has encountered an error! '{}'", e);
                     eprintln!("Restoring has encountered an error! '{}', stopping..", e);
                     return Err(e);
                 }
@@ -87,13 +87,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
             #[cfg(debug_assertions)]
             "--config-reset" | "-R" => {
-                info!("parse_args(): Removing tdcfg file");
+                info!("main(): Removing tdcfg file");
                 println!("Removing tdcfg file");
                 fs::remove_file("patcher.tdcfg")?;
             }
 
             _ => {
-                error!("parse_args(): Unknown argument {arg}");
+                error!("main(): Unknown argument {arg}");
                 eprintln!("Unknown argument {arg}");
                 continue;
             }
@@ -143,7 +143,7 @@ fn ui() -> Result<(), Box<dyn std::error::Error>> {
             ui.horizontal(|ui| {
                 if ui.button("Restore game").clicked() {
                     if let Err(e) = patcher::unpatch() {
-                        error!("parse_args(): Restoring has encountered an error! '{}'", e);
+                        error!("ui(): Restoring has encountered an error! '{}'", e);
                         eprintln!("Restoring has encountered an error! '{}', stopping..", e);
                         return Err(e);
                     }
